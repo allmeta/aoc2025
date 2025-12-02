@@ -9,10 +9,12 @@ main = do
 
 part1 =
   show
-  . solve
+  . sum
+  . filter (isInvalid . show) 
+  . concatMap ((\[a,b]-> [read a .. read b] :: [Int]) . splitOn "-") 
   . splitOn "," . head . lines
 
-solve s = sum $ filter (isInvalid . show) $ concat $ map ((\[a,b]-> [read a..read b] :: [Int]) . splitOn "-") $ s
 
+isInvalid :: String -> Bool
 isInvalid n = a == b
   where (a,b) = splitAt (length n `div` 2) n
