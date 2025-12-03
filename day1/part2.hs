@@ -11,16 +11,12 @@ part2 =
   . foldl solve (50, 0)
   . lines
 
-solve (v, p) (d:n) = (v', p+hits)
+solve (v, p) (d:n) = (v', p')
   where 
     dir = if d == 'R' then 1 else -1
     n' = read n
-    hits = hitsFor v dir n'
-    v' = (v + dir * n') `mod` 100
+    hits = take n' $ repeat 1 
+    (v', p', _) = foldl rotate (v, p, dir) hits
 
--- unified hits function
-hitsFor :: Int -> Int -> Int -> Int
-hitsFor v dir n =
-  let r = ((-dir * v) `mod` 100)            -- 0..99
-      first = if r == 0 then 100 else r     -- first positive k that hits zero
-  in if first > n then 0 else 1 + (n - first) `div` 100
+rotate (v, p, dir) h = (n, if n == 0 then p + 1 else p, dir)
+  where n = (v+h*dir) `mod` 100
