@@ -4,36 +4,34 @@
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    # Nix package set
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # CHANGED: Using the latest *stable* NixOS channel.
+    # This channel is more likely to have pre-built binaries (substitutes)
+    # compared to the bleeding edge of 'nixpkgs-unstable'.
+    # I'm using the latest stable release (e.g., 23.11) as an example.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    # If you prefer to stick closer to "latest", you can try:
+    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small"; 
   };
 
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
+      systems = [ "x86_64-linux" ];
 
       perSystem = { pkgs, lib, ... }: {
-        # A devShell with all kinds of languages I've used for
-        # solving Advent of Code throughout the years
         devShells.default =
           let
-            # The compiler version to use for development
-            compiler-version = "ghc96";
+            # The latest stable GHC version available in this nixpkgs channel
+            compiler-version = "ghc98";
+            # Note: We still access the package set via the compiler-version
             hpkgs = pkgs.haskell.packages.${compiler-version};
-            # HLS
+            
             # Haskell packages to include
-            packages = p: with p; [ megaparsec split vector ];
+            packages = p: with p; [ split vector ];
+            
             # Haskell and shell tooling
             tools = [
-              pkgs.cbqn
-              pkgs.uiua
               (hpkgs.ghcWithPackages packages)
               hpkgs.ghcid
-              hpkgs.fourmolu
-              # Always put HLS in the bottom of the list
-              # so it doesn't override other exported packages
-              # like formatters and ghc...
-              pkgs.haskell-language-server
             ];
             # System libraries that need to be symlinked
             libraries = [ ];
@@ -47,7 +45,7 @@
             LIBRARY_PATH = libraryPath;
           };
 
-        formatter = pkgs.alejandra;
+        # formatter = pkgs.alejandra;
+      };
     };
-  };
 }
