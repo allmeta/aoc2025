@@ -10,9 +10,9 @@ main = do
   let [fresh, available] = map lines $ splitOn "\n\n" file
   putStrLn $ show $ solve fresh available
 
-solve fresh available = length $ filter (isFresh fresh) available
+solve fresh available = length $ filter (isFresh fresh . read) available
 
+isFresh :: [String] -> Int -> Bool
 isFresh [] _ = False
-isFresh (f:fs) y = if (x >= (read a :: Int) && x <= (read b :: Int)) then True else isFresh fs y
-  where [a,b] = splitOn "-" f
-        x = read y
+isFresh (f:fs) y = if (y >= a && y <= b) then True else isFresh fs y
+  where [a,b] = map read $ splitOn "-" f
